@@ -1394,6 +1394,64 @@ body {
   color: var(--color-primary);
 }
 
+/* === MANAGER APPLY CTA === */
+.manager-apply-cta {
+  width: 100%;
+  max-width: 400px;
+  margin-top: 16px;
+}
+.manager-apply-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #0d0d0d;
+  border: 1px solid #2a1f00;
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+.manager-apply-inner:hover {
+  border-color: rgba(245,197,24,0.3);
+  box-shadow: 0 0 16px rgba(245,197,24,0.07);
+}
+.manager-apply-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.manager-apply-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.manager-apply-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #d0a800;
+}
+.manager-apply-sub {
+  font-size: 0.72rem;
+  color: #444;
+  margin-top: 1px;
+  line-height: 1.4;
+}
+.manager-apply-btn {
+  background: transparent;
+  border: 1px solid #3a2800;
+  color: var(--color-primary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: var(--radius);
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background var(--transition), border-color var(--transition);
+}
+.manager-apply-btn:hover {
+  background: rgba(245,197,24,0.08);
+  border-color: var(--color-primary);
+}
+
 @media (max-width: 768px) {
   .auth-page-split { flex-direction: column; }
   .auth-hero-panel { flex: none; padding: 36px 24px 28px; border-right: none; border-bottom: 1px solid #1a1a1a; }

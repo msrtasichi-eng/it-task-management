@@ -81,10 +81,6 @@ function LoginForm({ onSwitch }) {
       <button className="btn btn-primary auth-submit-btn" type="submit" disabled={loading}>
         {loading ? 'Signing in…' : 'Sign In →'}
       </button>
-      <p className="auth-switch">
-        Don't have an account?{' '}
-        <button type="button" className="auth-switch-btn" onClick={onSwitch}>Create one free</button>
-      </p>
       <div className="auth-hint">
         <span className="auth-hint-label">Demo admin:</span> admin@itsystem.com / admin123
       </div>
@@ -431,7 +427,7 @@ export default function AuthPage() {
   return (
     <div className="auth-page-split">
       {/* Left hero panel */}
-      <div className="auth-hero-panel">
+      <div className="auth-hero-panel" style={{ display: tab === 'register' ? 'none' : undefined }}>
         <div className="auth-hero-content">
           <div className="auth-logo-mark">
             <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
@@ -504,6 +500,21 @@ export default function AuthPage() {
             ? <LoginForm onSwitch={() => setTab('register')} />
             : <RegisterForm onSwitch={() => setTab('login')} />}
         </div>
+
+        {tab === 'login' && (
+          <div className="manager-apply-cta">
+            <div className="manager-apply-inner">
+              <span className="manager-apply-icon">📋</span>
+              <div className="manager-apply-text">
+                <span className="manager-apply-label">Have manager skills?</span>
+                <span className="manager-apply-sub">Lead a team and oversee IT requests on the platform.</span>
+              </div>
+              <button className="btn manager-apply-btn" onClick={() => setTab('register')}>
+                Apply here →
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
