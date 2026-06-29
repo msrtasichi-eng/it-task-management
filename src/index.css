@@ -1023,12 +1023,16 @@ body {
 
 /* === REGISTER ROLE SELECTOR === */
 .register-role-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
+  justify-content: center;
   gap: 10px;
   margin-top: 4px;
 }
-@media (max-width: 480px) { .register-role-grid { grid-template-columns: 1fr; } }
+.register-role-btn { flex: 0 0 160px; }
+@media (max-width: 480px) {
+  .register-role-grid { flex-direction: column; align-items: stretch; }
+  .register-role-btn { flex: none; }
+}
 
 .register-role-btn {
   display: flex;
@@ -1393,6 +1397,27 @@ body {
   font-weight: 700;
   color: var(--color-primary);
 }
+
+/* === MANAGER APPLICATION HEADER === */
+.manager-apply-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #0d0d0d;
+  border: 1px solid #2a1f00;
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+.manager-apply-header-icon { font-size: 1.5rem; flex-shrink: 0; }
+.manager-apply-header-title {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: -0.2px;
+}
+.manager-apply-header-sub { font-size: 0.75rem; color: #555; margin-top: 2px; }
 
 /* === MANAGER APPLY CTA === */
 .manager-apply-cta {

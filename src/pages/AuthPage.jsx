@@ -14,13 +14,6 @@ const ROLE_OPTIONS = [
     label: 'Specialist',
     desc: 'Pick up tasks that match your expertise and skills.',
   },
-  {
-    key: 'manager',
-    icon: '📋',
-    label: 'Manager',
-    desc: 'Review requests, set pricing, release to specialists.',
-    note: 'Requires admin approval',
-  },
 ]
 
 function Field({ label, optional, error, children }) {
@@ -147,9 +140,9 @@ function SuccessScreen({ user, onLogin }) {
   )
 }
 
-function RegisterForm({ onSwitch }) {
+function RegisterForm({ onSwitch, defaultRole = '' }) {
   const { register } = useAuth()
-  const [role, setRole] = useState('')
+  const [role, setRole] = useState(defaultRole)
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -241,22 +234,24 @@ function RegisterForm({ onSwitch }) {
 
   return (
     <form className="auth-form reg-form" onSubmit={handleSubmit} noValidate>
-      <div className="form-group">
-        <label>I am a…</label>
-        <div className="register-role-grid">
-          {ROLE_OPTIONS.map(r => (
-            <button key={r.key} type="button"
-              className={`register-role-btn${role === r.key ? ' selected' : ''}`}
-              onClick={() => setRole(r.key)}>
-              <span className="rrb-icon">{r.icon}</span>
-              <span className="rrb-label">{r.label}</span>
-              <span className="rrb-desc">{r.desc}</span>
-              {r.note && <span className="rrb-note">⚠ {r.note}</span>}
-            </button>
-          ))}
+      {!defaultRole && (
+        <div className="form-group">
+          <label>I am a…</label>
+          <div className="register-role-grid">
+            {ROLE_OPTIONS.map(r => (
+              <button key={r.key} type="button"
+                className={`register-role-btn${role === r.key ? ' selected' : ''}`}
+                onClick={() => setRole(r.key)}>
+                <span className="rrb-icon">{r.icon}</span>
+                <span className="rrb-label">{r.label}</span>
+                <span className="rrb-desc">{r.desc}</span>
+                {r.note && <span className="rrb-note">⚠ {r.note}</span>}
+              </button>
+            ))}
+          </div>
+          {errors.role && <span className="form-error">{errors.role}</span>}
         </div>
-        {errors.role && <span className="form-error">{errors.role}</span>}
-      </div>
+      )}
 
       {showAccount && (
         <>
@@ -426,8 +421,8 @@ export default function AuthPage() {
 
   return (
     <div className="auth-page-split">
-      {/* Left hero panel */}
-      <div className="auth-hero-panel" style={{ display: tab === 'register' ? 'none' : undefined }}>
+      {/* Left hero panel — hide on wide register forms */}
+      <div className="auth-hero-panel" style={{ display: tab !== 'login' ? 'none' : undefined }}>
         <div className="auth-hero-content">
           <div className="auth-logo-mark">
             <svg width="38" height="38" viewBox="0 0 38 38" fill="none">
@@ -496,9 +491,20 @@ export default function AuthPage() {
             <button className={`auth-tab-btn${tab === 'register' ? ' active' : ''}`} onClick={() => setTab('register')}>Register</button>
           </div>
 
-          {tab === 'login'
-            ? <LoginForm onSwitch={() => setTab('register')} />
-            : <RegisterForm onSwitch={() => setTab('login')} />}
+          {tab === 'login' && <LoginForm onSwitch={() => setTab('register')} />}
+          {tab === 'register' && <RegisterForm onSwitch={() => setTab('login')} />}
+          {tab === 'manager' && (
+            <>
+              <div className="manager-apply-header">
+                <span className="manager-apply-header-icon">📋</span>
+                <div>
+                  <div className="manager-apply-header-title">Manager Application</div>
+                  <div className="manager-apply-header-sub">Fill in your details — an admin will review your request.</div>
+                </div>
+              </div>
+              <RegisterForm defaultRole="manager" onSwitch={() => setTab('login')} />
+            </>
+          )}
         </div>
 
         {tab === 'login' && (
@@ -509,7 +515,7 @@ export default function AuthPage() {
                 <span className="manager-apply-label">Have manager skills?</span>
                 <span className="manager-apply-sub">Lead a team and oversee IT requests on the platform.</span>
               </div>
-              <button className="btn manager-apply-btn" onClick={() => setTab('register')}>
+              <button className="btn manager-apply-btn" onClick={() => setTab('manager')}>
                 Apply here →
               </button>
             </div>
