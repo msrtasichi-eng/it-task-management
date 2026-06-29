@@ -2,11 +2,6 @@ import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 
 const ROLE_LABELS = { client: 'Client', specialist: 'Specialist', manager: 'Manager', admin: 'Admin' }
-const STATUS_STYLES = {
-  active:   { background: '#d1fae5', color: '#065f46', border: '1px solid #a7f3d0' },
-  pending:  { background: '#fef3c7', color: '#92400e', border: '1px solid #fde68a' },
-  rejected: { background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5' },
-}
 
 function formatDate(iso) {
   if (!iso) return '—'
@@ -21,19 +16,15 @@ function PendingManagerCard({ user, onApprove, onReject }) {
         <div>
           <div className="admin-pending-name">{user.name}</div>
           <div className="admin-pending-email">{user.email}</div>
-          {user.department && (
-            <div className="admin-pending-dept">Dept: {user.department}</div>
-          )}
-          <div className="admin-pending-date">Registered {formatDate(user.registeredAt)}</div>
+          {user.company    && <div className="admin-pending-dept">{user.company}</div>}
+          {user.department && <div className="admin-pending-dept">Dept: {user.department}</div>}
+          {user.position   && <div className="admin-pending-dept">{user.position}</div>}
+          <div className="admin-pending-date">Applied {formatDate(user.registeredAt)}</div>
         </div>
       </div>
       <div className="admin-pending-actions">
-        <button className="btn btn-success btn-sm" onClick={() => onApprove(user.id)}>
-          ✓ Approve
-        </button>
-        <button className="btn btn-danger btn-sm" onClick={() => onReject(user.id)}>
-          ✕ Reject
-        </button>
+        <button className="btn btn-success btn-sm" onClick={() => onApprove(user.id)}>✓ Approve</button>
+        <button className="btn btn-danger btn-sm" onClick={() => onReject(user.id)}>✕ Reject</button>
       </div>
     </div>
   )
@@ -57,6 +48,10 @@ export default function AdminPage() {
     }
   }
 
+  const totalClients     = allUsers.filter(u => u.role === 'client').length
+  const totalSpecialists = allUsers.filter(u => u.role === 'specialist').length
+  const totalManagers    = allUsers.filter(u => u.role === 'manager').length
+
   return (
     <div className="page-container">
       <div className="admin-header">
@@ -64,7 +59,31 @@ export default function AdminPage() {
           <h1 className="page-title">Admin Panel</h1>
           <p className="page-subtitle">{allUsers.length} registered users · {pendingManagers.length} pending approval</p>
         </div>
-        <div className="admin-header-badge">&#128737; Administrator</div>
+        <div className="admin-header-badge">⚙ Administrator</div>
+      </div>
+
+      {/* Stat bar */}
+      <div className="summary-bar" style={{ marginBottom: 36 }}>
+        <div className="summary-chip">
+          <span className="count">{allUsers.length}</span>
+          <span className="label">Total</span>
+        </div>
+        <div className="summary-chip s-pending">
+          <span className="count">{pendingManagers.length}</span>
+          <span className="label">Pending</span>
+        </div>
+        <div className="summary-chip">
+          <span className="count" style={{ color: 'var(--color-primary)' }}>{totalClients}</span>
+          <span className="label">Clients</span>
+        </div>
+        <div className="summary-chip">
+          <span className="count" style={{ color: '#a3e635' }}>{totalSpecialists}</span>
+          <span className="label">Specialists</span>
+        </div>
+        <div className="summary-chip">
+          <span className="count" style={{ color: '#fbbf24' }}>{totalManagers}</span>
+          <span className="label">Managers</span>
+        </div>
       </div>
 
       {/* Pending managers */}
@@ -75,7 +94,6 @@ export default function AdminPage() {
             <span className="section-count urgent">{pendingManagers.length}</span>
           )}
         </div>
-
         {pendingManagers.length === 0 ? (
           <div className="empty-state">
             <div className="empty-state-icon">✅</div>
@@ -84,12 +102,7 @@ export default function AdminPage() {
         ) : (
           <div className="admin-pending-list">
             {pendingManagers.map(user => (
-              <PendingManagerCard
-                key={user.id}
-                user={user}
-                onApprove={approveManager}
-                onReject={rejectManager}
-              />
+              <PendingManagerCard key={user.id} user={user} onApprove={approveManager} onReject={rejectManager} />
             ))}
           </div>
         )}
@@ -97,23 +110,19 @@ export default function AdminPage() {
 
       {/* All users */}
       <section className="admin-section">
-        <div className="section-header" style={{ marginBottom: 16 }}>
+        <div className="section-header">
           <h2 className="section-title">All Users</h2>
           <div className="admin-role-filter">
             {['all', 'client', 'specialist', 'manager'].map(r => (
-              <button
-                key={r}
-                className={`admin-filter-btn${filterRole === r ? ' active' : ''}`}
-                onClick={() => setFilterRole(r)}
-              >
+              <button key={r} className={`admin-filter-btn${filterRole === r ? ' active' : ''}`} onClick={() => setFilterRole(r)}>
                 {r === 'all' ? 'All' : ROLE_LABELS[r]}
               </button>
             ))}
           </div>
         </div>
-
         {filtered.length === 0 ? (
           <div className="empty-state">
+            <div className="empty-state-icon">👤</div>
             <p>No users found for this filter.</p>
           </div>
         ) : (
@@ -142,18 +151,18 @@ export default function AdminPage() {
                       </div>
                     </td>
                     <td>
-                      <span className="admin-role-badge admin-role-badge--{user.role}">
+                      <span className={`admin-role-badge admin-role-badge--${user.role}`}>
                         {ROLE_LABELS[user.role]}
                       </span>
                     </td>
                     <td>
-                      <span className="status-pill" style={STATUS_STYLES[user.status]}>
+                      <span className={`status-pill status-pill-${user.status}`}>
                         {user.status}
                       </span>
                     </td>
                     <td className="admin-detail-cell">
                       {user.department && <span>Dept: {user.department}</span>}
-                      {user.specialty && <span>Specialty: {user.specialty}</span>}
+                      {user.specialty  && <span>{user.specialty}</span>}
                       {user.approvedBy && <span>Approved by {user.approvedBy}</span>}
                     </td>
                     <td className="admin-date-cell">{formatDate(user.registeredAt)}</td>
@@ -168,9 +177,8 @@ export default function AdminPage() {
                         <button
                           className={`btn btn-sm ${confirmDelete === user.id ? 'btn-danger' : 'btn-ghost'}`}
                           onClick={() => handleDelete(user.id)}
-                          title={confirmDelete === user.id ? 'Click again to confirm' : 'Delete user'}
                         >
-                          {confirmDelete === user.id ? 'Confirm delete' : 'Delete'}
+                          {confirmDelete === user.id ? '⚠ Confirm' : 'Delete'}
                         </button>
                       )}
                     </td>
