@@ -198,6 +198,8 @@ body {
   white-space: nowrap;
   font-family: inherit;
   letter-spacing: 0.2px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .btn:active { transform: scale(0.97); }
 
@@ -2350,3 +2352,216 @@ body {
   margin: -6px -8px;
 }
 .collapsible-header:hover { background: rgba(255,255,255,0.03); }
+
+/* ================================================================
+   MOBILE & RESPONSIVE
+   ================================================================ */
+
+/* Disable hover lift effects on pure-touch devices */
+@media (hover: none) {
+  .btn:hover  { filter: none; }
+  .task-card:hover  { transform: none; box-shadow: var(--shadow-sm); border-color: var(--color-border); }
+  .role-card:hover  { transform: none; box-shadow: var(--shadow-sm); border-color: #222; background: #111; }
+  .summary-chip:hover { border-color: var(--color-border); }
+}
+
+/* ---- Tablet (≤ 768px) ---- */
+@media (max-width: 768px) {
+  /* Prevent iOS Safari auto-zoom on input focus */
+  .form-group input,
+  .form-group textarea,
+  .search-input,
+  .claim-form input,
+  .tag-input-field,
+  .reject-reason-input,
+  .reg-select { font-size: 16px; }
+
+  .page-container { padding: 24px 16px 48px; }
+  .page-title { font-size: 1.5rem; }
+
+  /* Top bar — tighter padding */
+  .top-bar { padding: 0 16px; }
+
+  /* Welcome banner — stack vertically */
+  .page-welcome-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 18px 20px;
+    gap: 14px;
+  }
+
+  /* Prevent horizontal overflow on mobile */
+  body, .auth-page-split { overflow-x: hidden; }
+
+  /* Auth form panel — stack card + CTA vertically, anchored to top */
+  .auth-form-panel {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    padding: 28px 16px 48px;
+    overflow: hidden;
+  }
+  .auth-card, .auth-card-wide { max-width: 100%; }
+  .manager-apply-cta { max-width: 100%; width: 100%; }
+
+  /* Modal — bottom sheet */
+  .modal-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+  .modal-box {
+    max-width: 100%;
+    width: 100%;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    max-height: 92vh;
+  }
+
+  /* Admin table — horizontal scroll */
+  .admin-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Home hero */
+  .home-hero h1 { font-size: 2.4rem; }
+  .home-hero { margin-bottom: 40px; }
+
+  /* Auth hero (supplements existing 768px block) */
+  .auth-hero-brand { font-size: 2rem; }
+}
+
+/* ---- Phone (≤ 480px) ---- */
+@media (max-width: 480px) {
+  .page-container { padding: 16px 12px 40px; }
+  .page-title { font-size: 1.25rem; letter-spacing: -0.3px; }
+  .page-subtitle { font-size: 0.85rem; }
+  .section-title { font-size: 0.74rem; }
+
+  /* Top bar */
+  .top-bar { padding: 0 12px; height: 52px; }
+  .top-bar-brand { font-size: 0.88rem; }
+  .role-badge { font-size: 0.62rem; padding: 3px 8px; }
+  .top-bar-signout { padding: 6px 10px; font-size: 0.75rem; }
+
+  /* Card grid — single column */
+  .card-grid { grid-template-columns: 1fr; }
+
+  /* Buttons — larger touch targets */
+  .btn    { min-height: 40px; }
+  .btn-sm { padding: 8px 14px; min-height: 38px; font-size: 0.8rem; }
+
+  /* Form card */
+  .form-card { padding: 18px 16px; }
+  .form-actions { flex-direction: column; }
+  .form-actions .btn { width: 100%; justify-content: center; }
+
+  /* Task card actions — stack */
+  .task-actions { flex-direction: column; gap: 6px; }
+  .task-actions .btn { width: 100%; justify-content: center; }
+  .task-actions .pending-edit-badge { display: block; width: 100%; text-align: center; }
+
+  /* Claim form — stack */
+  .claim-form { flex-direction: column; }
+  .claim-form input { width: 100%; min-width: 0; }
+  .claim-form .btn { width: 100%; justify-content: center; }
+
+  /* Summary bar */
+  .summary-bar { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .summary-chip { padding: 14px 14px; }
+  .summary-chip .count { font-size: 1.6rem; }
+
+  /* Welcome banner */
+  .pwb-avatar   { width: 44px; height: 44px; font-size: 1.1rem; }
+  .pwb-greeting { font-size: 1.1rem; }
+  .pwb-sub      { font-size: 0.8rem; }
+  .pwb-stats    { gap: 14px; flex-wrap: wrap; }
+  .pwb-stat-num { font-size: 1.4rem; }
+
+  /* Auth */
+  .auth-card      { padding: 24px 18px; }
+  .auth-card-wide { max-width: 100%; padding: 24px 18px; }
+  .auth-title     { font-size: 1.3rem; }
+  .manager-apply-inner { flex-wrap: wrap; gap: 8px; }
+  .manager-apply-text  { min-width: 160px; }
+  .manager-apply-btn   { flex: 0 0 100%; text-align: center; }
+
+  /* Home */
+  .home-hero h1 { font-size: 2rem; letter-spacing: -0.8px; }
+  .home-page    { padding: 40px 16px; }
+  .role-cards   { flex-direction: column; }
+  .role-card    { width: 100%; }
+
+  /* Admin page */
+  .admin-header       { flex-direction: column; gap: 10px; }
+  .admin-header-badge { align-self: flex-start; }
+  .admin-pending-card { flex-direction: column; align-items: stretch; }
+  .admin-pending-actions { justify-content: flex-start; }
+  .admin-role-filter  { flex-wrap: wrap; }
+  .section-header     { flex-wrap: wrap; gap: 8px; }
+
+  /* Edit review card */
+  .edit-review-header { flex-wrap: wrap; gap: 8px; }
+  .edit-review-meta   { margin-left: 0; }
+  .edit-review-actions           { flex-direction: column; }
+  .edit-review-actions .btn      { width: 100%; justify-content: center; }
+
+  /* Diff table — stacked layout on mobile */
+  .edit-diff-table thead                  { display: none; }
+  .edit-diff-table,
+  .edit-diff-table tbody,
+  .edit-diff-table tr,
+  .edit-diff-table td                     { display: block; width: 100%; }
+  .edit-diff-table tr {
+    border: 1px solid #1e1e1e;
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+  .edit-diff-table td   { padding: 2px 0; border: none; }
+  .diff-field           { padding-bottom: 2px; }
+  .diff-original, .diff-proposed { display: block; }
+
+  /* Reject reason actions */
+  .reject-reason-actions         { flex-direction: column; gap: 6px; }
+  .reject-reason-actions .btn    { width: 100%; justify-content: center; }
+
+  /* Modal body */
+  .modal-body   { padding: 16px; }
+  .modal-header { padding: 16px 16px 12px; }
+
+  /* Search */
+  .search-bar-wrapper { padding: 14px; }
+
+  /* Status / empty state */
+  .status-notice-card { padding: 32px 20px; }
+  .empty-state        { padding: 36px 20px; }
+
+  /* Collapsible */
+  .collapsible-header { padding: 10px 12px; }
+
+  /* Tag input */
+  .tag-input-field { min-width: 80px; }
+}
+
+/* Safe area insets (iPhone notch / home indicator) */
+.top-bar {
+  padding-left: max(16px, calc(16px + env(safe-area-inset-left)));
+  padding-right: max(16px, calc(16px + env(safe-area-inset-right)));
+}
+@supports (padding: max(0px)) {
+  .top-bar { padding-top: env(safe-area-inset-top); height: calc(58px + env(safe-area-inset-top)); }
+  .modal-backdrop { padding-bottom: env(safe-area-inset-bottom); }
+  body { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* ---- Very small (≤ 360px) ---- */
+@media (max-width: 360px) {
+  .top-bar-brand { display: none; }
+  /* divider already hidden at 600px */
+  .role-badge    { display: none; }
+
+  .page-container { padding: 12px 10px 32px; }
+  .pwb-stats      { gap: 10px; }
+  .pwb-stat-num   { font-size: 1.15rem; }
+  .pwb-avatar     { width: 38px; height: 38px; font-size: 0.95rem; }
+}
