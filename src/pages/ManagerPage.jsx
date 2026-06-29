@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useTask } from '../context/TaskContext'
+import { useAuth } from '../context/AuthContext'
 import TaskCard from '../components/TaskCard'
 import Modal from '../components/Modal'
 import TaskForm from '../components/TaskForm'
@@ -22,9 +23,14 @@ function CollapsibleSection({ title, count, children }) {
 }
 
 export default function ManagerPage() {
-  const { pendingTasks, poolTasks, inProgressTasks, doneTasks, updateTask, approveTask } = useTask()
+  const { pendingTasks, poolTasks, inProgressTasks, doneTasks, rejectedTasks,
+          proposeEdit, approveTask, rejectTask, dismissDecision } = useTask()
+  const { currentUser } = useAuth()
   const [editingTask, setEditingTask] = useState(null)
   const [editTags, setEditTags] = useState([])
+  // rejectingId -> tracks which task has the reject reason input open
+  const [rejectingId, setRejectingId] = useState(null)
+  const [rejectReason, setRejectReason] = useState('')
 
   function openEdit(task) {
     setEditingTask(task)
@@ -37,13 +43,55 @@ export default function ManagerPage() {
   }
 
   function handleSaveEdit({ title, description, price }) {
-    updateTask(editingTask.id, { title, description, price, tags: editTags })
+    proposeEdit(editingTask.id, { title, description, price, tags: editTags }, currentUser.name)
     closeEdit()
+  }
+
+  function openReject(id) {
+    setRejectingId(id)
+    setRejectReason('')
+  }
+
+  function cancelReject() {
+    setRejectingId(null)
+    setRejectReason('')
+  }
+
+  function confirmReject(id) {
+    rejectTask(id, rejectReason.trim())
+    setRejectingId(null)
+    setRejectReason('')
   }
 
   return (
     <div className="page-container">
-      <h1 className="page-title">Manager Dashboard</h1>
+      <div className="page-welcome-banner">
+        <div className="pwb-left">
+          <div className="pwb-avatar mgr">{(currentUser.name[0] || 'M').toUpperCase()}</div>
+          <div>
+            <h1 className="pwb-greeting">Manager Dashboard 📋</h1>
+            <p className="pwb-sub">Review incoming requests, adjust details, and route tasks to specialists.</p>
+          </div>
+        </div>
+        <div className="pwb-stats">
+          <div className="pwb-stat">
+            <span className="pwb-stat-num" style={{ color: 'var(--color-primary)' }}>{pendingTasks.length}</span>
+            <span className="pwb-stat-label">Pending</span>
+          </div>
+          <div className="pwb-stat">
+            <span className="pwb-stat-num" style={{ color: '#60a5fa' }}>{poolTasks.length}</span>
+            <span className="pwb-stat-label">In Pool</span>
+          </div>
+          <div className="pwb-stat">
+            <span className="pwb-stat-num" style={{ color: '#a78bfa' }}>{inProgressTasks.length}</span>
+            <span className="pwb-stat-label">Active</span>
+          </div>
+          <div className="pwb-stat">
+            <span className="pwb-stat-num" style={{ color: 'var(--color-success)' }}>{doneTasks.length}</span>
+            <span className="pwb-stat-label">Done</span>
+          </div>
+        </div>
+      </div>
 
       <div className="summary-bar">
         <div className="summary-chip s-pending">
@@ -80,12 +128,54 @@ export default function ManagerPage() {
                 task={task}
                 actions={
                   <>
-                    <button className="btn btn-ghost btn-sm" onClick={() => openEdit(task)}>
-                      Edit
-                    </button>
-                    <button className="btn btn-success btn-sm" onClick={() => approveTask(task.id)}>
-                      Approve
-                    </button>
+                    {task.editDecision && (
+                      <div className={`edit-decision-banner ${task.editDecision.outcome}`}>
+                        {task.editDecision.outcome === 'accepted'
+                          ? '✓ Client accepted your edit'
+                          : '✕ Client rejected your edit'}
+                        <button className="edit-decision-dismiss" onClick={() => dismissDecision(task.id)} title="Dismiss">×</button>
+                      </div>
+                    )}
+
+                    {rejectingId === task.id ? (
+                      <div className="reject-reason-box">
+                        <input
+                          className="reject-reason-input"
+                          placeholder="Reason for rejection (optional)"
+                          value={rejectReason}
+                          onChange={e => setRejectReason(e.target.value)}
+                          autoFocus
+                          onKeyDown={e => {
+                            if (e.key === 'Enter') confirmReject(task.id)
+                            if (e.key === 'Escape') cancelReject()
+                          }}
+                        />
+                        <div className="reject-reason-actions">
+                          <button className="btn btn-danger btn-sm" onClick={() => confirmReject(task.id)}>
+                            Confirm Reject
+                          </button>
+                          <button className="btn btn-ghost btn-sm" onClick={cancelReject}>
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        {task.pendingEdit ? (
+                          <span className="pending-edit-badge">Awaiting client review</span>
+                        ) : (
+                          <button className="btn btn-ghost btn-sm" onClick={() => openEdit(task)}>
+                            Edit
+                          </button>
+                        )}
+                        <button className="btn btn-success btn-sm" onClick={() => approveTask(task.id)}>
+                          Approve
+                        </button>
+                        <button className="btn btn-danger-outline btn-sm" onClick={() => openReject(task.id)}>
+                          Reject
+                        </button>
+                      </>
+                    )}
                   </>
                 }
               />
@@ -130,6 +220,18 @@ export default function ManagerPage() {
         ) : (
           <div className="card-grid">
             {doneTasks.map(task => <TaskCard key={task.id} task={task} />)}
+          </div>
+        )}
+      </CollapsibleSection>
+
+      <CollapsibleSection title="Rejected" count={rejectedTasks.length}>
+        {rejectedTasks.length === 0 ? (
+          <div className="empty-state"><p>No rejected tasks.</p></div>
+        ) : (
+          <div className="card-grid">
+            {rejectedTasks.map(task => (
+              <TaskCard key={task.id} task={task} />
+            ))}
           </div>
         )}
       </CollapsibleSection>

@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { useTask } from '../context/TaskContext'
+import { useAuth } from '../context/AuthContext'
 import TaskCard from '../components/TaskCard'
 
 function ClaimActions({ task, onClaim }) {
@@ -40,6 +41,7 @@ function ClaimActions({ task, onClaim }) {
 
 export default function ProgrammerPage() {
   const { poolTasks, inProgressTasks, doneTasks, claimTask, markDone } = useTask()
+  const { currentUser } = useAuth()
   const [showDone, setShowDone] = useState(false)
   const [search, setSearch] = useState('')
   const [activeTags, setActiveTags] = useState([])
@@ -69,9 +71,39 @@ export default function ProgrammerPage() {
     })
   }, [poolTasks, search, activeTags])
 
+  const totalEarnings = doneTasks.reduce((sum, t) => sum + Number(t.price), 0)
+
   return (
     <div className="page-container">
-      <h1 className="page-title">Programmer Panel</h1>
+      <div className="page-welcome-banner">
+        <div className="pwb-left">
+          <div className="pwb-avatar spec">{(currentUser.name[0] || 'S').toUpperCase()}</div>
+          <div>
+            <h1 className="pwb-greeting">Ready to work, {currentUser.name.split(' ')[0]}? 💻</h1>
+            <p className="pwb-sub">Browse the task pool, claim what fits your skills, and deliver.</p>
+          </div>
+        </div>
+        <div className="pwb-stats">
+          <div className="pwb-stat">
+            <span className="pwb-stat-num" style={{ color: 'var(--color-primary)' }}>{poolTasks.length}</span>
+            <span className="pwb-stat-label">Available</span>
+          </div>
+          <div className="pwb-stat">
+            <span className="pwb-stat-num" style={{ color: '#60a5fa' }}>{inProgressTasks.length}</span>
+            <span className="pwb-stat-label">In Progress</span>
+          </div>
+          <div className="pwb-stat">
+            <span className="pwb-stat-num" style={{ color: 'var(--color-success)' }}>{doneTasks.length}</span>
+            <span className="pwb-stat-label">Completed</span>
+          </div>
+          {totalEarnings > 0 && (
+            <div className="pwb-stat">
+              <span className="pwb-stat-num" style={{ color: 'var(--color-primary)' }}>${totalEarnings.toFixed(0)}</span>
+              <span className="pwb-stat-label">Earned</span>
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="programmer-sections">
         {/* Search + filter */}

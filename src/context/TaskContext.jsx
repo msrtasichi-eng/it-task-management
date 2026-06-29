@@ -29,11 +29,44 @@ export function TaskProvider({ children }) {
       claimedBy: null,
       submittedBy,
       tags: [],
+      pendingEdit: null,
     }])
   }
 
   function updateTask(id, patches) {
     setTasks(prev => prev.map(t => t.id === id ? { ...t, ...patches } : t))
+  }
+
+  function proposeEdit(id, patches, managerName) {
+    setTasks(prev => prev.map(t =>
+      t.id === id
+        ? { ...t, editDecision: null, pendingEdit: { ...patches, editedAt: new Date().toISOString(), editedBy: managerName } }
+        : t
+    ))
+  }
+
+  function acceptEdit(id) {
+    setTasks(prev => prev.map(t => {
+      if (t.id !== id || !t.pendingEdit) return t
+      const { editedAt, editedBy, ...fields } = t.pendingEdit
+      return { ...t, ...fields, pendingEdit: null, editDecision: { outcome: 'accepted', decidedAt: new Date().toISOString() } }
+    }))
+  }
+
+  function rejectEdit(id) {
+    setTasks(prev => prev.map(t =>
+      t.id === id ? { ...t, pendingEdit: null, editDecision: { outcome: 'rejected', decidedAt: new Date().toISOString() } } : t
+    ))
+  }
+
+  function dismissDecision(id) {
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, editDecision: null } : t))
+  }
+
+  function rejectTask(id, reason = '') {
+    setTasks(prev => prev.map(t =>
+      t.id === id ? { ...t, status: 'rejected', rejectedAt: new Date().toISOString(), rejectionReason: reason } : t
+    ))
   }
 
   function approveTask(id) {
@@ -58,11 +91,13 @@ export function TaskProvider({ children }) {
   const poolTasks       = tasks.filter(t => t.status === 'approved')
   const inProgressTasks = tasks.filter(t => t.status === 'in_progress')
   const doneTasks       = tasks.filter(t => t.status === 'done')
+  const rejectedTasks   = tasks.filter(t => t.status === 'rejected')
 
   return (
     <TaskContext.Provider value={{
-      tasks, addTask, updateTask, approveTask, claimTask, markDone,
-      pendingTasks, poolTasks, inProgressTasks, doneTasks,
+      tasks, addTask, updateTask, proposeEdit, acceptEdit, rejectEdit, dismissDecision,
+      approveTask, rejectTask, claimTask, markDone,
+      pendingTasks, poolTasks, inProgressTasks, doneTasks, rejectedTasks,
     }}>
       {children}
     </TaskContext.Provider>
